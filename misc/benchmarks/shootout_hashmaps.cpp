@@ -2,7 +2,7 @@
 #include <time.h>
 #include "stc/crand.h"
 
-#define MAX_LOAD_FACTOR 80
+#define MAX_LOAD_FACTOR 85
 
 #ifdef __cplusplus
 #include <limits>

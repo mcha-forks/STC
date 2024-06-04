@@ -85,6 +85,10 @@ typedef union {
     csview chr; // utf8 character/codepoint
 } cstr_iter;
 
+typedef struct {
+    uint16_t hashx:6;
+    uint16_t dist:10;
+} hmap_slot;
 
 #if defined __GNUC__ || defined __clang__ || defined _MSC_VER
     typedef long catomic_long;
@@ -146,19 +150,18 @@ typedef union {
     typedef struct { \
         SELF##_value *ref; \
         size_t idx; \
+        hmap_slot slot; \
         bool inserted; \
-        uint8_t hashx; \
-        uint16_t dist; \
     } SELF##_result; \
 \
     typedef struct { \
         SELF##_value *ref, *_end; \
-        struct hmap_slot *_sref; \
+        hmap_slot *_sref; \
     } SELF##_iter; \
 \
     typedef struct SELF { \
         SELF##_value* table; \
-        struct hmap_slot* slot; \
+        hmap_slot* slots; \
         intptr_t size, bucket_count; \
     } SELF
 
