@@ -446,24 +446,26 @@ STC_DEF void
 _c_MEMB(_erase_entry)(i_type* self, _m_value* _val) {
     _m_value* d = self->table;
     hmap_slot* s = self->slots;
-    size_t i = (size_t)(_val - d), j = i, k;
-    const size_t _mask = (size_t)self->bucket_count - 1;
+    intptr_t i = _val - d, j = i;
+    uint32_t ij_diff = 0;
+    const intptr_t _mask = self->bucket_count - 1;
     _c_MEMB(_value_drop)(_val);
     for (;;) { // delete without leaving tombstone
         j = (j + 1) & _mask;
         if (! s[j].dist)
             break;
-        const _m_keyraw _raw = i_keyto(_i_keyref(d + j));
-        k = i_hash((&_raw)) & _mask;
-        if ((j < i) ^ (k <= i) ^ (k > j)) { // is k outside (i, j]?
+        if (s[j].dist > ++ij_diff) { // is j-home before i?
             d[i] = d[j];
             s[i] = s[j];
+            s[i].dist -= ij_diff & 0x3ffU;
             i = j;
+            ij_diff = 0;
         }
     }
     s[i].hashx = 0, s[i].dist = 0;
     --self->size;
 }
+
 #endif // i_implement
 #undef i_max_load_factor
 #undef _i_is_set
